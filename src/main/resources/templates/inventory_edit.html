@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShereBox - アイテム編集</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* スマホでの入力しやすさを向上させるカスタムCSS */
+        .form-control, .form-select {
+            font-size: 16px; /* iOSの自動ズーム防止 */
+            padding: 0.75rem;
+        }
+        .btn-lg-custom {
+            padding: 1rem;
+            font-weight: bold;
+        }
+        .card {
+            border: none;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div th:replace="~{common/header :: layout-header}"></div>
+
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-6">
+                
+                <div class="mb-3">
+                    <a th:href="@{/inventory}" class="text-decoration-none text-secondary">
+                        <i class="bi bi-chevron-left"></i> ← 一覧に戻る
+                    </a>
+                </div>
+
+                <div class="card shadow">
+                    <div class="card-body p-4">
+                        <h2 class="h4 card-title mb-4 border-bottom pb-2">アイテムを編集</h2>
+                        
+                        <form th:action="@{/inventory/edit}" method="post">
+                            <input type="hidden" name="id" th:value="${item.id}">
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-bold text-secondary">カード名</label>
+                                <input type="text" name="name" class="form-control" 
+                                       th:value="${item.name}" placeholder="例: ピカチュウ" required>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-6 mb-4">
+                                    <label class="form-label fw-bold text-secondary">枚数</label>
+                                    <input type="number" name="totalCount" class="form-control" 
+                                           th:value="${item.totalCount}" min="0" required>
+                                </div>
+
+                                <div class="col-6 mb-4">
+                                    <label class="form-label fw-bold text-secondary">カテゴリ</label>
+                                    <select name="category" class="form-select" required>
+                                        <option th:each="cat : ${ {'たねポケモン','1進化ポケモン','2進化ポケモン','サポート','グッズ','ポケモンのどうぐ','スタジアム','基本エネルギー','特殊エネルギー'} }"
+                                                th:value="${cat}" th:text="${cat}" th:selected="${cat == item.category}"></option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-3 mt-2">
+                                <button type="submit" class="btn btn-primary btn-lg btn-lg-custom">
+                                    保存して更新する
+                                </button>
+                                <a th:href="@{/inventory}" class="btn btn-link text-secondary">
+                                    キャンセル
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</body>
+</html>

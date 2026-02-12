@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShereBox - 在庫一覧</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .sticky-bottom-custom {
+            position: sticky;
+            bottom: 0;
+            background: white;
+            padding: 15px;
+            border-top: 1px solid #dee2e6;
+            box-shadow: 0 -5px 10px rgba(0,0,0,0.05);
+            margin-left: -1rem;
+            margin-right: -1rem;
+            z-index: 1020;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        .item-card:hover {
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    <div th:replace="~{common/header :: layout-header}"></div>
+
+    <div class="container mt-3">
+        <form th:action="@{/inventory}" method="get" class="mb-4">
+            <div class="row g-2">
+                <div class="col-8 col-md-5">
+                    <input type="text" name="keyword" th:value="${keyword}" class="form-control" placeholder="カード名で検索...">
+                </div>
+                <div class="col-4 col-md-5">
+                    <select name="category" class="form-select">
+                        <option value="">すべて</option>
+                        <option th:each="cat : ${ {'たねポケモン','1進化ポケモン','2進化ポケモン','サポート','グッズ','ポケモンのどうぐ','スタジアム','基本エネルギー','特殊エネルギー'} }"
+                                th:value="${cat}" 
+                                th:text="${cat}" 
+                                th:selected="${cat == selectedCategory}"></option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-2">
+                    <button class="btn btn-primary w-100" type="submit">検索</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="mb-0">在庫一覧</h4>
+            <a th:href="@{/inventory/add}" class="btn btn-success btn-sm">
+                <i class="bi bi-plus-lg"></i> 一括登録
+            </a>
+        </div>
+
+        <form id="lendingForm" th:action="@{/lending/exec}" method="post">
+            <div th:each="item : ${items}" class="card mb-2 shadow-sm item-card">
+                <div class="card-body p-2 p-md-3 d-flex align-items-center">
+                    
+                    <div class="form-check me-2" th:if="${item.totalCount > 0}">
+                        <input class="form-check-input item-checkbox" type="checkbox" 
+                               name="itemIds" th:value="${item.id}" 
+                               style="width: 24px; height: 24px;"
+                               onchange="toggleInput(this)">
+                    </div>
+                    <div class="me-2 text-center" th:unless="${item.totalCount > 0}" style="width: 24px;">
+                        <i class="bi bi-x-circle-fill text-danger"></i>
+                    </div>
+                    
+                    <div class="flex-grow-1 min-width-0">
+                        <div class="fw-bold text-truncate" th:text="${item.name}">アイテム名</div>
+                        <div class="small text-muted">
+                            <span class="badge bg-light text-dark border" th:text="${item.category}">カテゴリ</span>
+                            <span class="ms-1" th:text="${item.ownerName}">所有者</span> / 
+                            在庫:<span th:text="${item.totalCount}">0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons ms-2" th:if="${session.userName == item.ownerName}">
+                        <a th:href="@{/inventory/edit/{id}(id=${item.id})}" class="btn btn-sm btn-outline-primary">
+                           <i class="bi bi-pencil"></i>
+                        </a>
+                        <a th:href="@{/inventory/delete/{id}(id=${item.id})}" 
+                           class="btn btn-sm btn-outline-danger"
+                           onclick="return confirm('このカードをリストから削除しますか？');">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </div>
+
+                    <div class="ms-2" style="width: 60px;">
+                        <input type="number" name="counts" value="1" min="1" 
+                               th:max="${item.totalCount}" 
+                               class="form-control form-control-sm count-input" 
+                               disabled>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(items)}" class="text-center mt-5 text-muted">
+                アイテムが見つかりません。
+            </div>
+
+            <div class="sticky-bottom-custom mt-4">
+                <button type="submit" id="submitBtn" class="btn btn-primary w-100 btn-lg" disabled>
+                    選択したものを借りる
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function toggleInput(checkbox) {
+            const card = checkbox.closest('.card-body');
+            const countInput = card.querySelector('.count-input');
+            countInput.disabled = !checkbox.checked;
+
+            const anyChecked = document.querySelectorAll('.item-checkbox:checked').length > 0;
+            document.getElementById('submitBtn').disabled = !anyChecked;
+        }
+    </script>
+</body>
+</html>

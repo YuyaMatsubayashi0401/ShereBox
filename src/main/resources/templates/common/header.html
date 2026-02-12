@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    </head>
+<body>
+
+    <nav th:fragment="layout-header" class="navbar navbar-dark bg-dark shadow-sm mb-4">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">
+                <i class="bi bi-person-circle"></i> 
+                <span th:text="${session.userName != null ? session.userName : '未ログイン'}">ユーザー名</span>
+            </span>
+            
+            <div class="d-flex">
+                <a th:href="@{/inventory}" class="btn btn-outline-light btn-sm me-2">在庫一覧</a>
+                <a th:href="@{/mypage}" class="btn btn-outline-light btn-sm me-2">マイページ</a>
+                <a th:href="@{/logout}" class="btn btn-outline-danger btn-sm">退室</a>
+            </div>
+        </div>
+    </nav>
+
+</body>
+</html>
